@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gezik: a fast, light file manager</title>
+  <meta name="description" content="Gezik is a fast, light file manager for Windows, macOS and Linux. Opens in about 35 ms, idles in under 6 MB. Free and open source.">
+  <meta property="og:title" content="Gezik: your files, without the wait">
+  <meta property="og:description" content="A fast, light file manager for Windows, macOS and Linux. Free and open source.">
+  <meta property="og:image" content="https://gezik.app/assets/shots/list-dark.jpg">
+  <meta property="og:url" content="https://gezik.app/">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#f8f5ef">
+  <link rel="icon" href="assets/gezik.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/gezik-256.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&amp;family=Instrument+Sans:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: oklch(0.975 0.008 85);
+      --paper-2: oklch(0.945 0.012 85);
+      --ink: oklch(0.2 0.012 70);
+      --ink-2: oklch(0.42 0.012 70);
+      --rule: oklch(0.86 0.012 80);
+      --night: oklch(0.19 0.01 260);
+      --night-2: oklch(0.25 0.012 260);
+      --amber: oklch(0.78 0.15 75);
+      --pin: oklch(0.6 0.17 15);
+      --amber-ink: oklch(0.5 0.12 65);
+      --display: "Bricolage Grotesque", "Helvetica Neue", Helvetica, sans-serif;
+      --body: "Instrument Sans", "Helvetica Neue", Helvetica, sans-serif;
+      --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+      --wrap: 1180px;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: var(--paper); color: var(--ink); overflow-x: clip; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--body); font-size: 17px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+    a { color: var(--ink); text-decoration-color: var(--amber); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+    a:hover { color: var(--amber-ink); }
+    a:focus-visible, .btn:focus-visible { outline: 2px solid var(--amber-ink); outline-offset: 3px; }
+    h1, h2, h3 { font-family: var(--display); margin: 0; letter-spacing: -0.02em; text-wrap: balance; }
+    p { margin: 0; text-wrap: pretty; }
+    img { max-width: 100%; }
+    .wrap { width: 100%; max-width: var(--wrap); margin: 0 auto; padding-left: 28px; padding-right: 28px; }
+    .mono, code { font-family: var(--mono); font-variant-ligatures: none; }
+
+    .bar { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 22px 0; }
+    .brand { display: flex; align-items: center; gap: 10px; font-family: var(--display); font-weight: 800; font-size: 22px; letter-spacing: -0.02em; text-decoration: none; }
+    .brand img { width: 30px; height: 30px; }
+    .nav { display: flex; align-items: center; gap: 26px; font-size: 15px; }
+    .nav a { text-decoration: none; color: var(--ink-2); }
+    .nav a:hover { color: var(--ink); }
+    .chip { font-family: var(--mono); font-size: 12px; padding: 4px 9px; border: 1px solid var(--rule); border-radius: 999px; color: var(--ink-2); white-space: nowrap; }
+
+    .hero { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 48px; align-items: center; padding-top: 48px; padding-bottom: 80px; }
+    .eyebrow { font-family: var(--mono); font-size: 13px; color: var(--ink-2); display: flex; gap: 10px; align-items: center; }
+    .eyebrow .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--pin); }
+    .hero h1 { font-size: clamp(44px, 6.2vw, 84px); line-height: 0.95; font-weight: 800; margin: 18px 0 22px; }
+    .hero h1 em { font-style: normal; background: linear-gradient(transparent 62%, color-mix(in oklch, var(--amber) 70%, transparent) 62%); }
+    .lede { font-size: 19px; color: var(--ink-2); max-width: 30em; }
+    .ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; align-items: center; }
+    .btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 20px; border-radius: 10px; font-weight: 600; font-size: 16px; text-decoration: none; border: 1px solid var(--ink); }
+    .btn.primary { background: var(--ink); color: var(--paper); }
+    .btn.primary:hover { background: oklch(0.3 0.012 70); color: var(--paper); }
+    .btn.ghost { color: var(--ink); background: transparent; border-color: var(--rule); }
+    .btn.ghost:hover { border-color: var(--ink); color: var(--ink); }
+    .btn .sub { font-family: var(--mono); font-size: 12px; font-weight: 400; opacity: 0.7; }
+    .fine { font-size: 13px; color: var(--ink-2); margin-top: 14px; }
+
+    .stage { position: relative; aspect-ratio: 1280 / 980; }
+    .shot { position: absolute; border-radius: 12px; overflow: hidden; box-shadow: 0 30px 60px -20px oklch(0.2 0.02 70 / 0.35), 0 0 0 1px oklch(0.2 0.02 70 / 0.12); background: var(--night); }
+    .shot img { display: block; width: 100%; height: auto; }
+    .shot.back { width: 82%; left: 0; top: 0; }
+    .shot.front { width: 82%; right: 0; bottom: 0; }
+
+    .numbers { border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+    .numgrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .num { padding: 30px 24px 28px; border-left: 1px solid var(--rule); }
+    .num:first-child { border-left: 0; padding-left: 0; }
+    .num .v { font-family: var(--mono); font-size: clamp(30px, 3.4vw, 44px); font-weight: 500; letter-spacing: -0.03em; line-height: 1; }
+    .num .v small { font-size: 0.45em; margin-left: 4px; color: var(--ink-2); letter-spacing: 0; }
+    .num .k { margin-top: 12px; font-size: 15px; color: var(--ink-2); }
+    .numnote { font-size: 13px; color: var(--ink-2); padding: 14px 0 18px; }
+
+    .section { padding-top: 96px; }
+    .head { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 48px; align-items: end; margin-bottom: 44px; }
+    .head h2, .h2 { font-size: clamp(34px, 4.2vw, 56px); line-height: 1; font-weight: 700; }
+    .head p { color: var(--ink-2); font-size: 18px; max-width: 34em; }
+    .label { font-family: var(--mono); font-size: 13px; color: var(--amber-ink); margin-bottom: 14px; display: block; }
+
+    .features { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--ink); }
+    .feature { padding: 26px 28px 30px 0; border-bottom: 1px solid var(--rule); }
+    .feature:nth-child(3n+2), .feature:nth-child(3n+3) { padding-left: 28px; border-left: 1px solid var(--rule); }
+    .feature h3 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+    .feature p { color: var(--ink-2); font-size: 15.5px; }
+
+    .night { background: var(--night); color: oklch(0.95 0.005 260); margin-top: 110px; padding: 96px 0; }
+    .night .head p { color: oklch(0.78 0.01 260); }
+    .night .label { color: var(--amber); }
+    .showgrid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 28px; align-items: start; }
+    .frame { border-radius: 12px; overflow: hidden; box-shadow: 0 0 0 1px oklch(1 0 0 / 0.08), 0 30px 70px -30px oklch(0 0 0 / 0.8); }
+    .frame img { display: block; width: 100%; height: auto; }
+    .cap { margin-top: 14px; font-size: 14px; color: oklch(0.78 0.01 260); display: flex; gap: 10px; }
+    .cap .mono { color: var(--amber); }
+    .stack { display: flex; flex-direction: column; gap: 28px; }
+    .keys { display: flex; flex-direction: column; gap: 12px; padding: 24px; border: 1px solid oklch(1 0 0 / 0.1); border-radius: 12px; margin: 0; }
+    .keyrow { display: flex; justify-content: space-between; align-items: center; gap: 16px; font-size: 15px; color: oklch(0.85 0.008 260); }
+    .keyrow dd { margin: 0; }
+    .kbd { display: inline-flex; gap: 4px; }
+    .kbd kbd { font-family: var(--mono); font-size: 12px; padding: 3px 7px; border-radius: 5px; background: var(--night-2); border: 1px solid oklch(1 0 0 / 0.12); border-bottom-width: 2px; color: oklch(0.95 0.005 260); }
+
+    .cfg { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 48px; align-items: start; }
+    .cfg ul { list-style: none; padding: 0; margin: 22px 0 0; display: flex; flex-direction: column; gap: 12px; color: var(--ink-2); }
+    .cfg li { padding-left: 22px; position: relative; }
+    .cfg li::before { content: ""; position: absolute; left: 0; top: 0.62em; width: 10px; height: 2px; background: var(--amber); }
+    pre.toml { margin: 0; font-family: var(--mono); font-variant-ligatures: none; font-size: 14.5px; line-height: 1.75; background: var(--paper-2); border: 1px solid var(--rule); border-radius: 12px; padding: 26px 28px; overflow-x: auto; color: var(--ink); }
+    .t-c { color: oklch(0.55 0.02 70); }
+    .t-s { color: var(--amber-ink); }
+    .t-h { color: var(--pin); }
+
+    .dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--ink); border-radius: 14px; overflow: hidden; }
+    .os { padding: 30px 28px 32px; display: flex; flex-direction: column; gap: 14px; border-left: 1px solid var(--rule); background: var(--paper); }
+    .os:first-child { border-left: 0; }
+    .os.mine { background: oklch(0.955 0.03 85); }
+    .os h3 { font-size: 28px; font-weight: 700; display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+    .os h3 .tag { font-family: var(--mono); font-size: 11px; font-weight: 400; color: var(--amber-ink); letter-spacing: 0; text-align: right; }
+    .os .file { font-family: var(--mono); font-variant-ligatures: none; font-size: 13px; color: var(--ink); background: var(--paper-2); border-radius: 6px; padding: 8px 10px; overflow-wrap: anywhere; }
+    .os p { font-size: 14.5px; color: var(--ink-2); }
+    .os .btn { margin-top: auto; justify-content: center; }
+    .dlnote { margin-top: 18px; font-size: 14px; color: var(--ink-2); display: flex; flex-wrap: wrap; gap: 8px 24px; }
+
+    .oss { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 48px; align-items: center; padding: 34px 0; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--rule); }
+    .oss h2 { font-size: clamp(28px, 3.2vw, 40px); line-height: 1.05; font-weight: 700; }
+    .oss p { color: var(--ink-2); }
+    .foot { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; padding-top: 30px; padding-bottom: 48px; font-size: 14px; color: var(--ink-2); }
+    .foot nav { display: flex; gap: 20px; flex-wrap: wrap; }
+    .foot a { color: var(--ink-2); text-decoration: none; }
+    .foot a:hover { color: var(--ink); }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .rise { animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+      .rise.d1 { animation-delay: 0.08s; }
+      .rise.d2 { animation-delay: 0.16s; }
+      .rise.d3 { animation-delay: 0.26s; }
+      @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+    @media (max-width: 920px) {
+      .hero, .head, .cfg, .oss, .showgrid { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+      .numgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .num:nth-child(3) { border-left: 0; padding-left: 0; }
+      .num:nth-child(n+3) { border-top: 1px solid var(--rule); }
+      .features { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .feature:nth-child(3n+2), .feature:nth-child(3n+3) { padding-left: 0; border-left: 0; }
+      .feature:nth-child(2n) { padding-left: 24px; border-left: 1px solid var(--rule); }
+      .dl { grid-template-columns: minmax(0, 1fr); }
+      .os { border-left: 0; border-top: 1px solid var(--rule); }
+      .os:first-child { border-top: 0; }
+      .nav .hide-s { display: none; }
+    }
+    @media (max-width: 560px) {
+      .wrap { padding-left: 18px; padding-right: 18px; }
+      .features { grid-template-columns: minmax(0, 1fr); }
+      .feature:nth-child(2n) { padding-left: 0; border-left: 0; }
+      .num { padding: 22px 12px 20px 0; }
+      .num:nth-child(2n) { border-left: 1px solid var(--rule); padding-left: 14px; }
+      .chip { display: none; }
+      pre.toml { font-size: 12.5px; padding: 20px; }
+      .keyrow { font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="wrap">
+    <div class="bar">
+      <a class="brand" href="#top"><img src="assets/gezik.svg" alt="" width="30" height="30">Gezik</a>
+      <nav class="nav" aria-label="Main">
+        <a class="hide-s" href="#features">Features</a>
+        <a class="hide-s" href="#speed">Speed</a>
+        <a href="#download">Download</a>
+        <a href="https://github.com/wenlar/gezik">GitHub</a>
+        <span class="chip" id="version">pre-release</span>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="wrap hero">
+      <div>
+        <div class="eyebrow rise"><span class="dot"></span>Windows · macOS · Linux</div>
+        <h1 class="rise d1">Your files, <em>without the wait.</em></h1>
+        <p class="lede rise d2">Gezik is a file manager that opens before you finish the thought. Tabs, two panes, previews, search, Git and phones, in a window that idles in under 6 MB and never waits on the disk.</p>
+        <div class="ctas rise d3">
+          <a class="btn primary" id="primary" href="https://github.com/wenlar/gezik/releases">Download for <span id="os-name">Windows</span> <span class="sub" id="os-file">x64 · .zip</span></a>
+          <a class="btn ghost" href="#download">Other platforms</a>
+        </div>
+        <p class="fine">Free and open source under the MPL 2.0. No account, no telemetry.</p>
+      </div>
+      <div class="stage rise d2">
+        <div class="shot back"><img src="assets/shots/list-light.jpg" width="1280" height="830" alt="Gezik in its light theme, listing a Documents folder"></div>
+        <div class="shot front"><img src="assets/shots/list-dark.jpg" width="1280" height="830" alt="Gezik in its dark theme, listing the same folder"></div>
+      </div>
+    </section>
+
+    <section id="speed" class="numbers">
+      <div class="wrap">
+        <div class="numgrid">
+          <div class="num"><div class="v">32–37<small>ms</small></div><div class="k">from launch to a window you can use</div></div>
+          <div class="num"><div class="v">5.8<small>MB</small></div><div class="k">of memory while it waits for you</div></div>
+          <div class="num"><div class="v">13.1<small>MB</small></div><div class="k">with a 100,000-file folder open</div></div>
+          <div class="num"><div class="v">+0.4<small>MB</small></div><div class="k">for 20 tabs instead of one</div></div>
+        </div>
+        <p class="numnote">Release build on Windows 11, default 900×600 window. Measured with the scripts in the repository: <a href="https://github.com/wenlar/gezik/blob/master/docs/performance.md">method and full results</a>.</p>
+      </div>
+    </section>
+
+    <section id="features" class="wrap section">
+      <div class="head">
+        <div><span class="label">What it does</span><h2>Everything Explorer and Finder do, and the parts they never got to.</h2></div>
+        <p>Built in Rust, drawn with Slint, one codebase for three systems. Nothing runs until you ask for it: no indexer, no background service, no telemetry.</p>
+      </div>
+      <div class="features">
+        <div class="feature"><h3>Files</h3><p>Copy and move through the system clipboard, drag and drop with folders that spring open, conflicts asked up front, and undo for the whole session.</p></div>
+        <div class="feature"><h3>Batch work</h3><p>Rename hundreds of files with rules and a live preview. Open archives as folders, convert pictures, audio, video, text and PDF.</p></div>
+        <div class="feature"><h3>Preview</h3><p>Space shows code in color, logs end to end, PDFs, video and audio, any file as hex, plus camera, album and author details.</p></div>
+        <div class="feature"><h3>Finding things</h3><p>A filter that narrows the folder as you type, search by name or content (Everything on Windows), saved searches and quick open.</p></div>
+        <div class="feature"><h3>Navigation</h3><p>Tabs that come back as you left them, pinned folders with colors and icons, and an address bar that runs commands after &gt;.</p></div>
+        <div class="feature"><h3>Layouts</h3><p>Two panes side by side or stacked, Miller columns, a folder tree, grouping, several windows, and rules that pick a view per folder.</p></div>
+        <div class="feature"><h3>Tags</h3><p>Color tags, star ratings and comments kept in the files themselves, so Finder and Dolphin read them too.</p></div>
+        <div class="feature"><h3>Git</h3><p>Each row shows its Git state. Stage, commit, push, pull and switch branch from the menu, with discards going to the trash first.</p></div>
+        <div class="feature"><h3>Phones</h3><p>Plug in an Android phone and it shows up in the sidebar: browse it, copy both ways, rename and delete, with progress and undo.</p></div>
+        <div class="feature"><h3>Tools</h3><p>Checksums, folder compare and sync that only ever deletes to the trash, duplicates, a size map, split and join, verified copies.</p></div>
+        <div class="feature"><h3>Network</h3><p>Computers sharing files nearby, found only when you open the section, for five seconds at most.</p></div>
+        <div class="feature"><h3>Languages</h3><p>English and Turkish, with German, Spanish, French and Chinese machine-translated. A new language is one text file.</p></div>
+      </div>
+    </section>
+
+    <section class="night">
+      <div class="wrap">
+        <div class="head">
+          <div><span class="label">Made for the keyboard</span><h2>Two panes, a grid of pictures, one keystroke apart.</h2></div>
+          <p>Every action has a key, and every key can be changed. The command palette finds the rest by name.</p>
+        </div>
+        <div class="showgrid">
+          <div>
+            <div class="frame"><img src="assets/shots/grid-dark.jpg" width="1280" height="830" loading="lazy" alt="Gezik's grid view showing photo thumbnails in the dark theme"></div>
+            <div class="cap"><span class="mono">Grid</span>Thumbnails for pictures and video, made only for what is on screen.</div>
+          </div>
+          <div class="stack">
+            <div>
+              <div class="frame"><img src="assets/shots/dual-light.jpg" width="1500" height="790" loading="lazy" alt="Gezik with two panes side by side"></div>
+              <div class="cap"><span class="mono">F3</span>A second pane; F5 copies and F6 moves across.</div>
+            </div>
+            <dl class="keys">
+              <div class="keyrow"><dt>Quick look</dt><dd class="kbd"><kbd>Space</kbd></dd></div>
+              <div class="keyrow"><dt>Second pane</dt><dd class="kbd"><kbd>F3</kbd></dd></div>
+              <div class="keyrow"><dt>Copy to the other pane</dt><dd class="kbd"><kbd>F5</kbd></dd></div>
+              <div class="keyrow"><dt>Command palette</dt><dd class="kbd"><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>P</kbd></dd></div>
+              <div class="keyrow"><dt>Search under this folder</dt><dd class="kbd"><kbd>Ctrl</kbd><kbd>E</kbd></dd></div>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap section">
+      <div class="cfg">
+        <div>
+          <span class="label">Settings are a text file</span>
+          <h2 class="h2">Change a line, see it now.</h2>
+          <ul>
+            <li>Saved changes apply at once, with no restart.</li>
+            <li>A theme only needs the colors it changes; themes from GitHub install in a click and never run code.</li>
+            <li>Settings travel as one zip, through a synced folder, or end-to-end encrypted with a secret code.</li>
+            <li>Portable mode: one empty file next to Gezik and it runs from a USB stick.</li>
+          </ul>
+        </div>
+<pre class="toml"><span class="t-c"># settings.toml</span>
+theme = <span class="t-s">"auto"</span>            <span class="t-c"># follows the system light/dark mode</span>
+
+<span class="t-h">[layout]</span>
+sidebar = <span class="t-s">"left"</span>          <span class="t-c"># left | right | hidden</span>
+density = <span class="t-s">"comfortable"</span>   <span class="t-c"># compact | comfortable</span>
+
+<span class="t-h">[view]</span>
+mode = <span class="t-s">"list"</span>             <span class="t-c"># list | grid | columns</span>
+folders-first = true
+
+<span class="t-c"># themes/sunset.toml</span>
+base = <span class="t-s">"dark"</span>
+<span class="t-h">[colors]</span>
+accent = <span class="t-s">"#ff8a3d"</span></pre>
+      </div>
+    </section>
+
+    <section id="download" class="wrap section">
+      <div class="head">
+        <div><span class="label">Download</span><h2>Pick your system.</h2></div>
+        <p>Gezik is in pre-release. Once installed it keeps itself up to date from its GitHub releases, checking at most once a day.</p>
+      </div>
+      <div class="dl">
+        <div class="os" data-os="windows">
+          <h3>Windows<span class="tag">x64</span></h3>
+          <div class="file" data-file="windows">gezik-&lt;version&gt;-windows-x64.zip</div>
+          <p>Signed by Wenlar LLC. Unzip and run gezik.exe; the portable zip keeps its settings next to it.</p>
+          <a class="btn primary" data-dl="windows" href="https://github.com/wenlar/gezik/releases">Download</a>
+        </div>
+        <div class="os" data-os="macos">
+          <h3>macOS<span class="tag">Apple silicon and Intel</span></h3>
+          <div class="file" data-file="macos">gezik-&lt;version&gt;-macos-universal.dmg</div>
+          <p>Signed and notarized by Apple. Drag Gezik.app to Applications.</p>
+          <a class="btn primary" data-dl="macos" href="https://github.com/wenlar/gezik/releases">Download</a>
+        </div>
+        <div class="os" data-os="linux">
+          <h3>Linux<span class="tag">x64</span></h3>
+          <div class="file" data-file="linux">gezik-&lt;version&gt;-linux-x64.AppImage</div>
+          <p>Make it executable (chmod +x) and run it; a .tar.gz is there too. Needs FUSE.</p>
+          <a class="btn primary" data-dl="linux" href="https://github.com/wenlar/gezik/releases">Download</a>
+        </div>
+      </div>
+      <div class="dlnote"><span>Check the files against <span class="mono">SHA256SUMS.txt</span> in the release.</span><a id="release-page" href="https://github.com/wenlar/gezik/releases">All releases</a><a href="https://github.com/wenlar/gezik#build">Build from source</a></div>
+    </section>
+
+    <section class="wrap section">
+      <div class="oss">
+        <h2>Open source, MPL 2.0. Use it, change it, ship it, also commercially.</h2>
+        <p>Files of Gezik you change and share stay open. Read the code, report a bug or translate it into your language on <a href="https://github.com/wenlar/gezik">GitHub</a>.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="wrap foot">
+    <span>© 2026 Wenlar LLC</span>
+    <nav aria-label="Documentation">
+      <a href="https://github.com/wenlar/gezik/blob/master/docs/features.md">Features</a>
+      <a href="https://github.com/wenlar/gezik/blob/master/docs/shortcuts.md">Shortcuts</a>
+      <a href="https://github.com/wenlar/gezik/blob/master/docs/configuration.md">Configuration</a>
+      <a href="https://github.com/wenlar/gezik/blob/master/LICENSE">License</a>
+    </nav>
+  </footer>
+
+  <script>
+    (function () {
+      var ua = navigator.userAgent.toLowerCase();
+      var os = ua.indexOf("mac") >= 0 ? "macos" : ua.indexOf("linux") >= 0 && ua.indexOf("android") < 0 ? "linux" : "windows";
+      var names = { windows: "Windows", macos: "macOS", linux: "Linux" };
+      var kinds = { windows: "x64 · .zip", macos: "universal · .dmg", linux: "x64 · AppImage" };
+      var patterns = { windows: /-windows-x64\.zip$/, macos: /-macos-universal\.dmg$/, linux: /-linux-x64\.AppImage$/ };
+      document.getElementById("os-name").textContent = names[os];
+      document.getElementById("os-file").textContent = kinds[os];
+      document.querySelectorAll("[data-os]").forEach(function (el) { el.classList.toggle("mine", el.getAttribute("data-os") === os); });
+
+      // The newest published release, pre-releases included (/releases/latest skips those).
+      // Without it every link stays on the releases page.
+      fetch("https://api.github.com/repos/wenlar/gezik/releases?per_page=10")
+        .then(function (r) { return r.ok ? r.json() : []; })
+        .then(function (list) {
+          var release = list.filter(function (r) { return !r.draft; })[0];
+          if (!release) return;
+          document.getElementById("version").textContent = release.tag_name.replace(/^v/, "") + (release.prerelease ? " · pre-release" : "");
+          document.getElementById("release-page").href = release.html_url;
+          Object.keys(patterns).forEach(function (key) {
+            var asset = release.assets.filter(function (a) { return patterns[key].test(a.name); })[0];
+            if (!asset) return;
+            document.querySelector('[data-dl="' + key + '"]').href = asset.browser_download_url;
+            document.querySelector('[data-file="' + key + '"]').textContent = asset.name;
+            if (key === os) document.getElementById("primary").href = asset.browser_download_url;
+          });
+        })
+        .catch(function () {});
+    })();
+  </script>
+</body>
+</html>
